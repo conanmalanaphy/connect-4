@@ -1,6 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
 import { usePlayPiece } from "hooks";
-import { RecoilRoot, useRecoilValue } from "recoil";
+import { RecoilRoot, useRecoilValue, useResetRecoilState } from "recoil";
 import { boardState, gameOverState, playerState } from "state";
 import { Board, Player } from "types";
 
@@ -31,6 +31,12 @@ const render = () => {
     },
   };
 };
+
+afterEach(() => {
+  // We are persisting the results in local storage so we
+  // will need to clear before each test.
+  localStorage.clear();
+});
 
 test("should win with 4 in a row vertically", () => {
   const { play, assertGame } = render();
@@ -64,4 +70,36 @@ test("should not play a piece when the column is full", () => {
   play(0);
   // No change because column is full
   assertGame(1, false, [[1, 2, 1, 2, 1, 2], [], [], [], [], [], []]);
+});
+
+test("should be a diagonal Up Right win when it starts on the first row", () => {
+  const { play, assertGame } = render();
+
+  [0, 1, 1, 2, 2, 3, 2, 3, 4, 3, 3].forEach(play);
+
+  assertGame(1, true, [[1], [2, 1], [2, 1, 1], [2, 2, 2, 1], [1], [], []]);
+});
+
+test("should be a diagonal Up Right win when it starts on the middle", () => {
+  const { play, assertGame } = render();
+
+  [2, 3, 3, 4, 4, 5, 4, 5, 6, 5, 5].forEach(play);
+
+  assertGame(1, true, [[], [], [1], [2, 1], [2, 1, 1], [2, 2, 2, 1], [1]]);
+});
+
+test("should be a diagonal Up left win start on the end row", () => {
+  const { play, assertGame } = render();
+
+  [6, 5, 5, 4, 3, 4, 4, 3, 3, 2, 3].forEach(play);
+
+  assertGame(1, true, [[], [], [2], [1, 2, 1, 1], [2, 2, 1], [2, 1], [1]]);
+});
+
+test("should be a diagonal Up left win when start in the middle", () => {
+  const { play, assertGame } = render();
+
+  [4, 3, 3, 2, 1, 2, 2, 1, 1, 0, 1].forEach(play);
+
+  assertGame(1, true, [[2], [1, 2, 1, 1], [2, 2, 1], [2, 1], [1], [], []]);
 });

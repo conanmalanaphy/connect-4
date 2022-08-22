@@ -17,7 +17,7 @@ const GameControls: FC = () => {
 
   return (
     <Button onClick={handleReset} isDisabled={!board.some((col) => col.length)}>
-      Reset
+      Reset Board
     </Button>
   );
 };
